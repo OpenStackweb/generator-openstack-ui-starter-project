@@ -1,0 +1,4 @@
+OAUTH2_CLIENT_ID=<%= oauthClientId %>
+IDP_BASE_URL=<%= idpBaseUrl %>
+API_BASE_URL=<%= apiBaseUrl %>
+SCOPES="<%= allowedScopes %>"
