@@ -24,20 +24,24 @@ class PrimaryLayout extends React.Component {
     let extraClass = 'container';
 
     // full width pages
-    if (location.pathname.includes('schedule') || location.pathname.includes('bulk-actions')) {
+    /*
+    if (location.pathname.includes('')) {
       extraClass = '';
     }
+    */
 
+    let useMenu = false;
+    <% if ( shouldUseMenu == true ) {%> useMenu = true; <% } %>
     return(
       <div className="primary-layout">
-        <NavMenu />
+        { useMenu && <NavMenu /> }
         <main id="page-wrap">
           <Breadcrumbs className={"breadcrumbs-wrapper " + extraClass} separator="/" />
-
           <Breadcrumb data={{ title: <i className="fa fa-home"></i>, pathname: match.url }} ></Breadcrumb>
-
           <Switch>
-
+            {/* add here your main routes
+              ex: <Route exact path="/app/directory" component={SummitDirectoryPage}/>
+             */}
           </Switch>
         </main>
       </div>

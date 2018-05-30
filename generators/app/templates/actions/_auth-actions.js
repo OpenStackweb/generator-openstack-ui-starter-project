@@ -79,6 +79,8 @@ export const doLogout = () => (dispatch) => {
   });
 }
 
+const AllowedGroupsCodes = [ '<%= defaultAllowedUserGroup %>'];
+
 
 export const getUserInfo = (history, backUrl) => (dispatch, getState) => {
 
@@ -109,7 +111,7 @@ export const getUserInfo = (history, backUrl) => (dispatch, getState) => {
       }
 
       let allowedGroups = member.groups.filter((group, idx) => {
-        return group.code === AdminGroupCode || group.code == SummitAdminGroupCode;
+        return AllowedGroupsCodes.includes(group.code)
       })
 
       if(allowedGroups.length == 0){

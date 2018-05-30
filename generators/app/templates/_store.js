@@ -20,7 +20,7 @@ import { persistStore, persistCombineReducers } from 'redux-persist'
 import storage from 'redux-persist/es/storage' // default: localStorage if web, AsyncStorage if react-native
 
 const config = {
-  key: 'root',
+  key: 'root_<%= name %>',
   storage,
 }
 

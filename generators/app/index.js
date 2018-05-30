@@ -24,6 +24,18 @@ module.exports = class extends Generator {
       },
       {
         type: 'input',
+        message: 'Default Allowed User Group',
+        name: 'defaultAllowedUserGroup',
+        default: 'administrators'
+      },
+      {
+        type: 'input',
+        message: 'Should Use Burger Menu?',
+        name: 'shouldUseMenu',
+        default: true
+      },
+      {
+        type: 'input',
         message: 'Your project OAuth2 Client ID',
         name: 'oauthClientId',
         default: ''
@@ -44,7 +56,7 @@ module.exports = class extends Generator {
         type: 'input',
         message: 'OAuth2 Allowed Scopes',
         name: 'allowedScopes',
-        default: ''
+        default: 'profile openid'
       },
       {
         type: 'input',
@@ -101,9 +113,10 @@ module.exports = class extends Generator {
     );
 
     // Boilerplate code
-    this.fs.copy(
+    this.fs.copyTpl(
       this.templatePath('actions/_auth-actions.js'),
-      this.destinationPath('src/actions/auth-actions.js')
+      this.destinationPath('src/actions/auth-actions.js'),
+      { defaultAllowedUserGroup: this.props.defaultAllowedUserGroup }
     );
     this.fs.copy(
       this.templatePath('actions/_base-actions.js'),
@@ -147,6 +160,10 @@ module.exports = class extends Generator {
       this.destinationPath('src/components/nav-menu/index.js')
     );
     this.fs.copy(
+      this.templatePath('components/nav-menu/_menu-items-definition.js'),
+      this.destinationPath('src/components/nav-menu/menu-items-definition.js')
+    );
+    this.fs.copy(
       this.templatePath('components/nav-menu/_menu-item.js'),
       this.destinationPath('src/components/nav-menu/menu-item.js')
     );
@@ -155,16 +172,18 @@ module.exports = class extends Generator {
       this.destinationPath('src/components/nav-menu/sub-menu-item.js')
     );
 
-    this.fs.copy(this.templatePath('_store.js'), this.destinationPath('src/store.js'));
-    this.fs.copy(this.templatePath('_app.js'), this.destinationPath('src/app.js'));
+    this.fs.copyTpl(
+      this.templatePath('_store.js'),
+      this.destinationPath('src/store.js'),
+      { name: this.props.name }
+    );
+    this.fs.copyTpl(this.templatePath('_app.js'), this.destinationPath('src/app.js'), {
+      name: this.props.name
+    });
     this.fs.copy(this.templatePath('_index.js'), this.destinationPath('src/index.js'));
     this.fs.copy(
-      this.templatePath('styles/_app-variable.less'),
-      this.destinationPath('src/styles/app-variable.less')
-    );
-    this.fs.copy(
-      this.templatePath('styles/_app-variable.less'),
-      this.destinationPath('src/styles/app-variable.less')
+      this.templatePath('styles/_app-variables.less'),
+      this.destinationPath('src/styles/app-variables.less')
     );
     this.fs.copy(
       this.templatePath('styles/_general.less'),
@@ -187,9 +206,10 @@ module.exports = class extends Generator {
       this.destinationPath('src/routes/default-route.js'),
       { defaultAppAuthzUrl: this.props.defaultAppAuthzUrl }
     );
-    this.fs.copy(
+    this.fs.copyTpl(
       this.templatePath('layouts/_primary-layout.js'),
-      this.destinationPath('src/layouts/primary-layout.js')
+      this.destinationPath('src/layouts/primary-layout.js'),
+      { shouldUseMenu: this.props.shouldUseMenu }
     );
   }
 

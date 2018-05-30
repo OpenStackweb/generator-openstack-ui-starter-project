@@ -17,6 +17,8 @@ import { slide as Menu } from 'react-burger-menu'
 import { withRouter } from 'react-router-dom'
 import SubMenuItem from './sub-menu-item'
 import MenuItem from './menu-item'
+import MenuItemsDefinitions from './menu-items-definition'
+import '../../styles/menu.less';
 
 class NavMenu extends React.Component {
 
@@ -45,9 +47,7 @@ class NavMenu extends React.Component {
         event.preventDefault();
         this.setState({menuOpen: false});
 
-
         history.push(`/app/${url}`);
-
     }
 
     drawMenuItem(item) {
@@ -76,38 +76,15 @@ class NavMenu extends React.Component {
 
     render() {
         let {menuOpen} = this.state;
-        let show = true;
-
-        let global_items = [
-            {name: 'directory', iconClass: 'fa-fw fa-list-ul', show: true, linkUrl: 'directory',    childs: [
-                {name:'child1', linkUrl:`child1`},
-              ]},
-        ]
-
-        let items = [
-            {name: 'dashboard', iconClass: 'fa-dashboard', show: show, linkUrl: ``},
-        ];
-
 
         return (
-            <Menu id="summit-admin-menu" isOpen={ menuOpen } noOverlay width={ 300 } pageWrapId={ "page-wrap" } >
+            <Menu id="app_menu" isOpen={ menuOpen } noOverlay width={ 300 } pageWrapId={ "page-wrap" } >
                 <div className="separator">
                     {T.translate('menu.general')}
                 </div>
-                {global_items.map(it => {
+                { MenuItemsDefinitions.map(it => {
                     return this.drawMenuItem(it);
                 })}
-
-                {show &&
-                <div className="separator">
-
-                </div>
-                }
-
-                {items.map(it => {
-                    return this.drawMenuItem(it);
-                })}
-
             </Menu>
         );
     }
