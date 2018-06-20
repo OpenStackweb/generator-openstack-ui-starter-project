@@ -10,9 +10,11 @@ npm install -g yo
 npm link
 ```
 
-Then generate your new project:
+Then generate your new project on a desire folder:
 
 ```bash
+mkdir ~/myproject
+cd ~/myproject
 yo openstack-ui-starter-project
 ```
 
