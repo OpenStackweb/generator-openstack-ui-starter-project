@@ -139,12 +139,17 @@ module.exports = class extends Generator {
       this.destinationPath('src/reducers/base-reducer.js')
     );
     this.fs.copy(
-      this.templatePath('utils/_fragment-parser.js'),
-      this.destinationPath('src/utils/fragment-parser.js')
+      this.templatePath('utils/_constants.js'),
+      this.destinationPath('src/utils/constants.js')
+    );
+    // Pages
+    this.fs.copy(
+      this.templatePath('pages/_custom-error-page.js'),
+      this.destinationPath('src/pages/custom-error-page.js')
     );
     this.fs.copy(
-      this.templatePath('utils/_methods.js'),
-      this.destinationPath('src/utils/methods.js')
+      this.templatePath('pages/_unauthorized-page.js'),
+      this.destinationPath('src/pages/unauthorized-page.js')
     );
     // Components
     this.fs.copy(
@@ -152,8 +157,8 @@ module.exports = class extends Generator {
       this.destinationPath('src/components/auth-button.js')
     );
     this.fs.copy(
-      this.templatePath('components/raw-html/_index.js'),
-      this.destinationPath('src/components/raw-html/index.js')
+      this.templatePath('components/_op-session-checker.js'),
+      this.destinationPath('src/components/op-session-checker.js')
     );
     this.fs.copy(
       this.templatePath('components/nav-menu/_index.js'),
@@ -171,16 +176,7 @@ module.exports = class extends Generator {
       this.templatePath('components/nav-menu/_sub-menu-item.js'),
       this.destinationPath('src/components/nav-menu/sub-menu-item.js')
     );
-
-    this.fs.copyTpl(
-      this.templatePath('_store.js'),
-      this.destinationPath('src/store.js'),
-      { name: this.props.name }
-    );
-    this.fs.copyTpl(this.templatePath('_app.js'), this.destinationPath('src/app.js'), {
-      name: this.props.name
-    });
-    this.fs.copy(this.templatePath('_index.js'), this.destinationPath('src/index.js'));
+    // Styles
     this.fs.copy(
       this.templatePath('styles/_app-variables.less'),
       this.destinationPath('src/styles/app-variables.less')
@@ -194,6 +190,11 @@ module.exports = class extends Generator {
       this.destinationPath('src/styles/menu.less')
     );
     this.fs.copy(
+      this.templatePath('styles/_error-page.less'),
+      this.destinationPath('src/styles/error-page.less')
+    );
+    // Routes
+    this.fs.copy(
       this.templatePath('routes/_authorization-callback-route.js'),
       this.destinationPath('src/routes/authorization-callback-route.js')
     );
@@ -206,10 +207,42 @@ module.exports = class extends Generator {
       this.destinationPath('src/routes/default-route.js'),
       { defaultAppAuthzUrl: this.props.defaultAppAuthzUrl }
     );
+    this.fs.copy(
+      this.templatePath('routes/_logout-callback-route.js'),
+      this.destinationPath('src/routes/logout-callback-route.js')
+    );
+    this.fs.copy(
+      this.templatePath('routes/_restrict.js'),
+      this.destinationPath('src/routes/restrict.js')
+    );
+    this.fs.copy(
+      this.templatePath('routes/_access.yml'),
+      this.destinationPath('src/routes/access.yml')
+    );
+    // Layouts
     this.fs.copyTpl(
       this.templatePath('layouts/_primary-layout.js'),
       this.destinationPath('src/layouts/primary-layout.js'),
       { shouldUseMenu: this.props.shouldUseMenu }
+    );
+    // Models
+    this.fs.copy(
+      this.templatePath('models/_member.js'),
+      this.destinationPath('src/models/member.js')
+    );
+
+    this.fs.copyTpl(
+      this.templatePath('_store.js'),
+      this.destinationPath('src/store.js'),
+      { name: this.props.name }
+    );
+    this.fs.copyTpl(this.templatePath('_app.js'), this.destinationPath('src/app.js'), {
+      name: this.props.name
+    });
+    this.fs.copy(this.templatePath('_index.js'), this.destinationPath('src/index.js'));
+    this.fs.copy(
+      this.templatePath('_history.js'),
+      this.destinationPath('src/history.js')
     );
   }
 

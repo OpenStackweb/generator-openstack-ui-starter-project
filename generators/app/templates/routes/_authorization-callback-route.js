@@ -52,32 +52,34 @@ class AuthorizationCallbackRoute extends React.Component {
   }
 
   render() {
-    let { getUserInfo, history } = this.props;
+    let { getUserInfo } = this.props;
 
     if(this.accessTokenParsed) return null;
 
 
-    let { access_token , id_token} = this.extractHashParams();
+    let { access_token , id_token, session_state, error, error_description } = this.extractHashParams();
 
     if(access_token == undefined){
       return (
         <Route render={ props => {
-          return <Redirect to="/error" />
+          return <Redirect to={`/error?error=${error}&error_description=${error_description}`} />
         }} />
       )
     }
 
     if(!this.validateIdToken(id_token))
     {
+      let error = "validation error";
+      let error_description = "invalid id token";
       return (
         <Route render={ props => {
-          return <Redirect to="/error" />
+          return <Redirect to={`/error?error=${error}&error_description=${error_description}`} />
         }} />
       )
     }
 
     this.accessTokenParsed = true;
-    this.props.onUserAuth(access_token, id_token);
+    this.props.onUserAuth(access_token, id_token, session_state);
     let url              = URI( window.location.href);
     let query            = url.search(true);
     let fragment         = URI.parseQuery(url.fragment());
@@ -91,13 +93,15 @@ class AuthorizationCallbackRoute extends React.Component {
     delete fragment['session_state'];
 
     let backUrl = query.hasOwnProperty('BackUrl') ? query['BackUrl'] : '/app';
-    backUrl     += `#${URI.buildQuery(fragment)}`;
 
-    getUserInfo(history, backUrl);
+    if (fragment.length > 0) {
+      backUrl     += `#${URI.buildQuery(fragment)}`;
+    }
+
+    getUserInfo(backUrl);
 
     return null;
   }
 }
 
 export default withRouter(AuthorizationCallbackRoute);
-

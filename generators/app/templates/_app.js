@@ -12,21 +12,25 @@
  **/
 
 import React from 'react'
-import { Switch, Route } from 'react-router-dom'
+import { Switch, Route, Router } from 'react-router-dom'
 import PrimaryLayout from "./layouts/primary-layout"
 import AuthorizedRoute from './routes/authorized-route'
 import AuthorizationCallbackRoute from "./routes/authorization-callback-route"
+import LogOutCallbackRoute from './routes/logout-callback-route'
 import AuthButton from './components/auth-button'
 import DefaultRoute from './routes/default-route'
 import { connect } from 'react-redux'
-import { onUserAuth, doLogin, doLogout, getUserInfo } from './actions/auth-actions'
-import { BrowserRouter } from 'react-router-dom'
+import { onUserAuth, doLogin, doLogout, initLogOut, getUserInfo } from './actions/auth-actions'
 import { AjaxLoader } from "openstack-uicore-foundation/lib/components";
+import { getBackURL } from "openstack-uicore-foundation/lib/methods";
 import T from 'i18n-react';
-import {getBackURL} from "./utils/methods";
+import OPSessionChecker from "./components/op-session-checker";
+import CustomErrorPage from "./pages/custom-error-page";
+import history from './history'
+
+
 
 // here is set by default user lang as en
-
 let language = (navigator.languages && navigator.languages[0]) || navigator.language || navigator.userLanguage;
 
 // language would be something like es-ES or es_ES
@@ -38,9 +42,10 @@ if (language.length > 2) {
   language = language.split("_")[0];
 }
 
-console.log(`user language is ${language}`);
+//console.log(`user language is ${language}`);
 
 T.setTexts(require(`./i18n/${language}.json`));
+
 
 class App extends React.PureComponent {
 
@@ -49,32 +54,40 @@ class App extends React.PureComponent {
   }
 
   render() {
-    let { isLoggedUser, onUserAuth, doLogout, getUserInfo, member} = this.props;
+    let { isLoggedUser, onUserAuth, doLogout, getUserInfo, member, backUrl} = this.props;
     let profile_pic = member ? member.pic : '';
     return (
-      <BrowserRouter>
+      <Router history={history}>
         <div>
           <AjaxLoader show={ this.props.loading } size={ 120 }/>
+          <OPSessionChecker
+            clientId={window.clientId}
+            idpBaseUrl={window.idpBaseUrl}
+          />
           <div className="header">
             <div className={"header-title " + (isLoggedUser ? '' : 'center')}>
               {T.translate("<%= name %>")}
-              <AuthButton isLoggedUser={isLoggedUser} picture={profile_pic} doLogin={this.onClickLogin.bind(this)} doLogout={doLogout}/>
+              <AuthButton isLoggedUser={isLoggedUser} picture={profile_pic} doLogin={this.onClickLogin.bind(this)} initLogOut={initLogOut}/>
             </div>
           </div>
           <Switch>
-            <AuthorizedRoute isLoggedUser={isLoggedUser} path="/app" component={PrimaryLayout} />
+            <AuthorizedRoute isLoggedUser={isLoggedUser} backUrl={backUrl} path="/app" component={PrimaryLayout} />
             <AuthorizationCallbackRoute onUserAuth={onUserAuth} path='/auth/callback' getUserInfo={getUserInfo} />
+            <LogOutCallbackRoute doLogout={doLogout}  path='/auth/logout'/>
+            <Route path="/logout" render={props => (<p>404 - Not Found</p>)}/>
             <Route path="/404" render={props => (<p>404 - Not Found</p>)}/>
+            <Route path="/error" component={CustomErrorPage}/>
             <DefaultRoute isLoggedUser={isLoggedUser} />
           </Switch>
         </div>
-      </BrowserRouter>
+      </Router>
     );
   }
 }
 
 const mapStateToProps = ({ loggedUserState, baseState }) => ({
   isLoggedUser: loggedUserState.isLoggedUser,
+  backUrl: loggedUserState.backUrl,
   member: loggedUserState.member,
   loading : baseState.loading,
 })
@@ -84,3 +97,4 @@ export default connect(mapStateToProps, {
   doLogout,
   getUserInfo,
 })(App)
+

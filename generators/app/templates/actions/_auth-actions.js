@@ -12,23 +12,27 @@
  **/
 
 import T from "i18n-react/dist/i18n-react";
-import {createAction, getRequest, startLoading, stopLoading} from "openstack-uicore-foundation/lib/methods";
-import swal from "sweetalert2";
+import {createAction, getRequest, startLoading, stopLoading, showMessage} from "openstack-uicore-foundation/lib/methods";
 import {authErrorHandler, apiBaseUrl} from "./base-actions";
+import { AllowedUserGroups } from '../utils/constants';
 import URI from "urijs";
+import history from '../history'
 
 export const SET_LOGGED_USER    = 'SET_LOGGED_USER';
 export const LOGOUT_USER        = 'LOGOUT_USER';
 export const REQUEST_USER_INFO  = 'REQUEST_USER_INFO';
 export const RECEIVE_USER_INFO  = 'RECEIVE_USER_INFO';
-const NONCE_LEN                 = 16;
+export const START_SESSION_STATE_CHECK = 'START_SESSION_STATE_CHECK';
+export const END_SESSION_STATE_CHECK = 'END_SESSION_STATE_CHECK';
 
-const getAuthUrl = (backUrl = null) => {
+const NONCE_LEN = 16;
+
+export const getAuthUrl = (backUrl = null, prompt = null, tokenIdHint = null) => {
 
   let oauth2ClientId = process.env['OAUTH2_CLIENT_ID'];
   let baseUrl        = process.env['IDP_BASE_URL'];
   let scopes         = process.env['SCOPES'];
-  let redirectUri    =`${ window.location.origin}/auth/callback`;
+  let redirectUri    =`${window.location.origin}/auth/callback`;
 
   if(backUrl != null)
     redirectUri += `?BackUrl=${encodeURI(backUrl)}`;
@@ -39,16 +43,44 @@ const getAuthUrl = (backUrl = null) => {
   window.localStorage.setItem('nonce', nonce);
   let url   = URI(`${baseUrl}/oauth2/auth`);
 
-  url = url.query({
+  let query = {
     "response_type"   : encodeURI("token id_token"),
     "scope"           : encodeURI(scopes),
     "nonce"           : nonce,
     "client_id"       : encodeURI(oauth2ClientId),
     "redirect_uri"    : encodeURI(redirectUri)
-  });
+  };
+
+  if(prompt){
+    query['prompt'] = prompt;
+  }
+
+  if(prompt){
+    query['prompt'] = prompt;
+  }
+
+  url = url.query(query);
 
   return url;
+}
 
+const getLogoutUrl = (idToken) => {
+  let baseUrl     = process.env['IDP_BASE_URL'];
+  let url         = URI(`${baseUrl}/oauth2/end-session`);
+  let state       = createNonce(NONCE_LEN);
+  let postLogOutUri = window.location.origin + '/auth/logout';
+  // store nonce to check it later
+  window.localStorage.setItem('post_logout_state', state);
+  /**
+   * post_logout_redirect_uri should be listed on oauth2 client settings
+   * on IDP
+   * "Security Settings" Tab -> Logout Options -> Post Logout Uris
+   */
+  return url.query({
+    "id_token_hint"             : idToken,
+    "post_logout_redirect_uri"  : encodeURI(postLogOutUri),
+    "state"                     : state,
+  });
 }
 
 const createNonce = (len) => {
@@ -61,34 +93,39 @@ const createNonce = (len) => {
 }
 
 export const doLogin = (backUrl = null) => {
+  if(backUrl)
+    console.log(`doLogin - backUrl ${backUrl} `);
   let url = getAuthUrl(backUrl);
   window.location = url.toString();
 }
 
-export const onUserAuth = (accessToken, idToken) => (dispatch) => {
+export const onUserAuth = (accessToken, idToken, sessionState) => (dispatch) => {
   dispatch({
     type: SET_LOGGED_USER,
-    payload: {accessToken, idToken}
+    payload: {accessToken, idToken, sessionState}
   });
 }
 
-export const doLogout = () => (dispatch) => {
+export const initLogOut = () => {
+  window.location = getLogoutUrl(window.idToken).toString();
+}
+
+
+export const doLogout = (backUrl) => (dispatch, getState) => {
   dispatch({
     type: LOGOUT_USER,
-    payload: {}
+    payload: {backUrl:backUrl}
   });
 }
 
-const AllowedGroupsCodes = [ '<%= defaultAllowedUserGroup %>'];
-
-
-export const getUserInfo = (history, backUrl) => (dispatch, getState) => {
+export const getUserInfo = (backUrl) => (dispatch, getState) => {
 
   let { loggedUserState }     = getState();
   let { accessToken, member } = loggedUserState;
   if(member != null){
     console.log(`redirecting to ${backUrl}`)
     history.push(backUrl);
+    return;
   }
 
   dispatch(startLoading());
@@ -103,26 +140,45 @@ export const getUserInfo = (history, backUrl) => (dispatch, getState) => {
 
       let { member } = getState().loggedUserState;
       if( member == null || member == undefined){
-        swal("ERROR", T.translate("errors.user_not_set"), "error");
-        dispatch({
-          type: LOGOUT_USER,
-          payload: {}
-        });
+        let error_message = {
+          title: 'ERROR',
+          html: T.translate("errors.user_not_set"),
+          type: 'error'
+        };
+
+        dispatch(showMessage( error_message, initLogOut ));
+
       }
 
       let allowedGroups = member.groups.filter((group, idx) => {
-        return AllowedGroupsCodes.includes(group.code)
+        return AllowedUserGroups.includes(group.code);
       })
 
       if(allowedGroups.length == 0){
-        swal("ERROR", T.translate("errors.user_not_authz") , "error");
-        dispatch({
-          type: LOGOUT_USER,
-          payload: {}
-        });
+        let error_message = {
+          title: 'ERROR',
+          html: T.translate("errors.user_not_authz"),
+          type: 'error'
+        };
+
+        dispatch(showMessage( error_message, initLogOut ));
       }
-      console.log(`redirecting to ${backUrl}`)
+
       history.push(backUrl);
     }
   );
+}
+
+export const onStartSessionStateCheck = () => (dispatch) => {
+  dispatch({
+    type: START_SESSION_STATE_CHECK,
+    payload: {}
+  });
+}
+
+export const onFinishSessionStateCheck = () => (dispatch) => {
+  dispatch({
+    type: END_SESSION_STATE_CHECK,
+    payload: {}
+  });
 }
