@@ -21,7 +21,7 @@ import DefaultRoute from './routes/default-route'
 import { connect } from 'react-redux'
 import { onUserAuth, doLogin, doLogout, getUserInfo } from './actions/auth-actions'
 import { BrowserRouter } from 'react-router-dom'
-import { AjaxLoader } from "openstack-uicore-foundation";
+import { AjaxLoader } from "openstack-uicore-foundation/lib/components";
 import T from 'i18n-react';
 import {getBackURL} from "./utils/methods";
 

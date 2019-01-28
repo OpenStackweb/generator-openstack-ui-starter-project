@@ -11,7 +11,7 @@
  * limitations under the License.
  **/
 import T from "i18n-react/dist/i18n-react";
-import {stopLoading, startLoading, createAction} from "openstack-uicore-foundation";
+import {stopLoading, startLoading, createAction} from "openstack-uicore-foundation/lib/methods";
 import {getBackURL, objectToQueryString} from '../utils/methods';
 import swal from "sweetalert2";
 import {doLogin} from "./auth-actions";
