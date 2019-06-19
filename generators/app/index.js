@@ -115,8 +115,7 @@ module.exports = class extends Generator {
     // Boilerplate code
     this.fs.copyTpl(
       this.templatePath('actions/_auth-actions.js'),
-      this.destinationPath('src/actions/auth-actions.js'),
-      { defaultAllowedUserGroup: this.props.defaultAllowedUserGroup }
+      this.destinationPath('src/actions/auth-actions.js')
     );
     this.fs.copy(
       this.templatePath('actions/_base-actions.js'),
@@ -140,7 +139,8 @@ module.exports = class extends Generator {
     );
     this.fs.copy(
       this.templatePath('utils/_constants.js'),
-      this.destinationPath('src/utils/constants.js')
+      this.destinationPath('src/utils/constants.js'),
+      { defaultAllowedUserGroup: this.props.defaultAllowedUserGroup }
     );
     // Pages
     this.fs.copy(
