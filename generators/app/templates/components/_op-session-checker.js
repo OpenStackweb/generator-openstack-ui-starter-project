@@ -1,5 +1,5 @@
 import React from 'react'
-import {doLogout, doLogin, onStartSessionStateCheck, onFinishSessionStateCheck, getAuthUrl} from "../actions/auth-actions";
+import {doLogout, doLogin, onStartSessionStateCheck, onFinishSessionStateCheck, getAuthUrl} from "openstack-uicore-foundation/lib/methods";
 import {connect} from "react-redux";
 import URI from "urijs"
 const CHECK_SESSION_INTERVAL = 1000 * 10;
