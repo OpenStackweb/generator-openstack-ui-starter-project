@@ -12,4 +12,4 @@
  **/
 
 
-export const AllowedUserGroups = [AdminGroupCode];
+export const AllowedUserGroups = ['<%= defaultAllowedUserGroup %>'];

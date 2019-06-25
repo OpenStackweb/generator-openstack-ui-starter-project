@@ -14,7 +14,7 @@
 import {
   LOGOUT_USER, SET_LOGGED_USER, RECEIVE_USER_INFO, START_SESSION_STATE_CHECK,
   END_SESSION_STATE_CHECK
-} from '../actions/auth-actions';
+} from 'openstack-uicore-foundation/lib/actions';
 
 const DEFAULT_STATE = {
   isLoggedUser: false,
